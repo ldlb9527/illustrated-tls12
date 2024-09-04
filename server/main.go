@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"illustrated-tls/fakerand"
+	tls "illustrated-tls/tlscopy"
+	"net"
 	"os"
 	"time"
-
-	"github.com/syncsynchalt/illustrated-tls/fakerand"
-	tls "github.com/syncsynchalt/illustrated-tls/tlscopy"
+	//"github.com/syncsynchalt/illustrated-tls/fakerand"
+	//tls "github.com/syncsynchalt/illustrated-tls/tlscopy"
 )
 
 var fakeRandData = []byte{
@@ -46,8 +48,8 @@ func main() {
 
 	rand := fakerand.New(fakeRandData)
 	ln, err := tls.Listen("tcp", ":8443", &tls.Config{
-		Rand:         rand,
-		Time:         func() time.Time { return time.Unix(1538708249, 0) },
+		Rand: rand,
+		Time: func() time.Time { return time.Unix(1538708249, 0) },
 		CipherSuites: []uint16{
 			// for the purpose of education we avoid AEAD cipher suites
 			0xc013, // ECDHE-RSA-AES128-SHA
@@ -66,34 +68,49 @@ func main() {
 		panic(err)
 	}
 
-	conn, err := ln.Accept()
-	if err != nil {
-		panic(err)
+	count := 0
+	for {
+		fmt.Println(fmt.Sprintf("Server is listening...%d", count))
+		conn, err := ln.Accept()
+		if err != nil {
+			panic(err)
+		}
+		go handleConnection(conn)
+		count++
 	}
 
+}
+
+func handleConnection(conn net.Conn) {
+	defer conn.Close()
+
+	// 读取客户端数据
 	rdata := make([]byte, 1024)
 	n, err := conn.Read(rdata)
-	fmt.Println("\nserver read data:", string(rdata[:n]))
 	if err != nil {
-		panic(err)
+		fmt.Println("Error reading:", err)
+		return
 	}
+	fmt.Println("Server read data:", string(rdata[:n]))
 
+	// 响应客户端
 	wdata := []byte("pong")
 	n, err = conn.Write(wdata)
 	if n != len(wdata) {
-		panic(fmt.Sprintf("incorrect write of %d (expected %d)", n, wdata))
+		fmt.Printf("Incorrect write of %d (expected %d)\n", n, len(wdata))
+		return
 	}
-	fmt.Println("server wrote data:", string(wdata[:n]))
+	fmt.Println("Server wrote data:", string(wdata[:n]))
 	if err != nil {
-		panic(err)
+		fmt.Println("Error writing:", err)
+		return
 	}
 
-	// this read will never succeed
+	// 尝试再次读取（这次应该不会成功）
 	n, err = conn.Read(rdata)
 	if n != 0 || err == nil {
-		panic("unexpected success on second read")
+		fmt.Println("Unexpected success on second read")
+	} else {
+		fmt.Println("Expected error on second read:", err)
 	}
-
-	n, tot := rand.Stats()
-	fmt.Printf("server used %d of %d rand bytes\n", n, tot)
 }

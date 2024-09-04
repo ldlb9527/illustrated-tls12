@@ -4,12 +4,13 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"illustrated-tls/fakerand"
+	tls "illustrated-tls/tlscopy"
 	"io/ioutil"
 	"os"
 	"time"
-
-	"github.com/syncsynchalt/illustrated-tls/fakerand"
-	tls "github.com/syncsynchalt/illustrated-tls/tlscopy"
+	//"github.com/syncsynchalt/illustrated-tls/fakerand"
+	//tls "github.com/syncsynchalt/illustrated-tls/tlscopy"
 )
 
 var fakeRandData = []byte{
@@ -38,11 +39,17 @@ func main() {
 
 	rand := fakerand.New(fakeRandData)
 	conn, err := tls.Dial("tcp", "localhost:8443", &tls.Config{
-		Rand:         rand,
-		Time:         func() time.Time { return time.Unix(1538708249, 0) },
-		RootCAs:      buildCaList(),
-		ServerName:   "example.ulfheim.net",
-		KeyLogWriter: &keyWriter{},
+		Rand:               rand,
+		Time:               func() time.Time { return time.Unix(1538708249, 0) },
+		RootCAs:            buildCaList(),
+		ServerName:         "example.ulfheim.net",
+		KeyLogWriter:       &keyWriter{},
+		InsecureSkipVerify: true,
+		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+			return nil
+
+		},
+		//CipherSuites: make([]uint16, 0),
 	})
 	if err != nil {
 		panic(err)

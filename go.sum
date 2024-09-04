@@ -1,0 +1,6 @@
+github.com/syncsynchalt/illustrated-tls v0.0.0-20240723201738-3af940642503 h1:HBuphKVVK30nqjo5Ug7yY68i7iSx7yVeopZJUYy8A/g=
+github.com/syncsynchalt/illustrated-tls v0.0.0-20240723201738-3af940642503/go.mod h1:8d3S55PRaSAYpvlMmf9PJpvK/BsPKkgBftEZ3GWWbAg=
+golang.org/x/crypto v0.20.0 h1:jmAMJJZXr5KiCw05dfYK9QnqaqKLYXijU23lsEdcQqg=
+golang.org/x/crypto v0.20.0/go.mod h1:Xwo95rrVNIoSMx9wa1JroENMToLWn3RNVrTBpLHgZPQ=
+golang.org/x/sys v0.23.0 h1:YfKFowiIMvtgl1UERQoTPPToxltDeZfbj4H7dVUCwmM=
+golang.org/x/sys v0.23.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=
